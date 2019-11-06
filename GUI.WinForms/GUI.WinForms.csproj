@@ -82,5 +82,11 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GameOfShapes\GameOfShapes.csproj">
+      <Project>{787e1794-6d44-4c96-b821-4469739c5fc6}</Project>
+      <Name>GameOfShapes</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
