@@ -61,18 +61,24 @@ namespace GUI.WinForms
         }
 
         public void AddCircle(int x, int y)
-        {
-            this.graphics.FillEllipse(Brushes.Chocolate, x - this.halfShapeSize, 
-                y - this.halfShapeSize, this.shapeSize, this.shapeSize);
+        {            
+            var cellCenterX = GetCellCenterCoordinate(x);
+            var cellCenterY = GetCellCenterCoordinate(y);
+
+            this.graphics.FillEllipse(Brushes.Chocolate, cellCenterX - this.halfShapeSize, 
+                cellCenterY - this.halfShapeSize, this.shapeSize, this.shapeSize);
         }
 
         public void AddTriangle(int x, int y)
-        {
+        {           
+            var cellCenterPointX = GetCellCenterCoordinate(x);
+            var cellCenterPointY = GetCellCenterCoordinate(y);
+
             Point[] pointsOfTriangle = new Point[]
             {
-                new Point(x-this.halfShapeSize,y+this.halfShapeSize),
-                new Point(x,y-this.halfShapeSize),
-                new Point(x+this.halfShapeSize,y+this.halfShapeSize),
+                new Point(cellCenterPointX - this.halfShapeSize, cellCenterPointY + this.halfShapeSize),
+                new Point(cellCenterPointX, cellCenterPointY - this.halfShapeSize),
+                new Point(cellCenterPointX + this.halfShapeSize, cellCenterPointY + this.halfShapeSize),
             };
             
             this.graphics.FillPolygon(Brushes.Blue, pointsOfTriangle);
@@ -80,8 +86,31 @@ namespace GUI.WinForms
 
         public void AddSquare(int x, int y)
         {
-            this.graphics.FillRectangle(Brushes.Green, x - this.halfShapeSize,
-                y - this.halfShapeSize, this.shapeSize, this.shapeSize);
+            var cellCenterX = GetCellCenterCoordinate(x);
+            var cellCenterY = GetCellCenterCoordinate(y);
+
+            this.graphics.FillRectangle(Brushes.Green, cellCenterX - this.halfShapeSize,
+                cellCenterY - this.halfShapeSize, this.shapeSize, this.shapeSize);
+        }
+
+
+        private int GetCellCenterCoordinate(int position)
+        {
+            return position * cellSize + cellSize / 2;
+        }
+
+        /// <summary>
+        /// Returns a pointer (number by horizontal and vertical) to a cell by coordinates of a some point (e.g. a cursor position)
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns></returns>
+        public Point GetCellPointerByCoordinates(int x, int y)
+        {
+            var cellYNumber = (int)Math.Truncate((decimal)y / cellSize);
+            var cellXNumber = (int)Math.Truncate((decimal)x / cellSize);
+
+            return new Point(cellXNumber, cellYNumber);
         }
 
         private void CalculateSize()

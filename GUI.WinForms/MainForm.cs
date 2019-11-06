@@ -83,21 +83,22 @@ namespace GUI.WinForms
         {
             if (this.board != null)
             {
+                var cellPointer = this.board.GetCellPointerByCoordinates(e.X, e.Y);
                 switch (this.currentShapeForAdd)
                 {
                     case TypeShape.Circle:
                     {
-                        this.board.AddCircle(e.X, e.Y);
+                        this.board.AddCircle(cellPointer.X, cellPointer.Y);
                         break;
                     }
                     case TypeShape.Triangle:
                     {
-                        this.board.AddTriangle(e.X, e.Y);
+                        this.board.AddTriangle(cellPointer.X, cellPointer.Y);
                         break;
                     }
                     case TypeShape.Square:
                     {
-                        this.board.AddSquare(e.X, e.Y);
+                        this.board.AddSquare(cellPointer.X, cellPointer.Y);
                         break;
                     }
                 }
