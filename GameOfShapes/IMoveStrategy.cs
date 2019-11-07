@@ -2,6 +2,6 @@
 {
     public interface IMoveStrategy
     {
-        IGameBoardCell CalculateOptimalCell(IShape shape, GameBoardCellMapNode currentPosition);
+        IGameBoardCell CalculateOptimalCell(IShape shape, IGameBoardCell currentPosition);
     }
 }

@@ -6,7 +6,7 @@ namespace GameOfShapes.Implementations.Strategies
 {
     public class RandomSelectStrategy : IMoveStrategy
     {
-        public IGameBoardCell CalculateOptimalCell(IShape shape, GameBoardCellMapNode currentPosition)
+        public IGameBoardCell CalculateOptimalCell(IShape shape, IGameBoardCell currentPosition)
         {
             throw new NotImplementedException();
         }

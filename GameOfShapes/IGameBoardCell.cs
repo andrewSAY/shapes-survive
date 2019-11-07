@@ -1,9 +1,13 @@
-﻿using System.Drawing;
+﻿using System.Collections.Generic;
+using System.Drawing;
 
 namespace GameOfShapes
 {
     public interface IGameBoardCell
     {
+        IEnumerable<IGameBoardCellMapNode> GetMapNodes();
+
+        void SetMapNodes(IGameBoardCellMapNode mapNode);
 
         Point GetPosition();
 

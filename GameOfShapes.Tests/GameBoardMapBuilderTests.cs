@@ -13,9 +13,9 @@ namespace GameOfShapes.Tests
         [InlineData(119, 65)]
         public void Build_Default_ReturnsExpectedCountOfNodes(int width, int height)
         {
-            var builder = new GameBoardMapBuilder();
+            var builder = new GameBoardMapBuilder(width, height);
 
-            var nodes = builder.Build(width, height);
+            var nodes = builder.Build();
 
             Assert.Equal(width * height, nodes.Count());
         }
@@ -23,9 +23,9 @@ namespace GameOfShapes.Tests
         [Fact]       
         public void Build_Default_ReturnsExpectedGraph()
         {
-            var builder = new GameBoardMapBuilder();
+            var builder = new GameBoardMapBuilder(cellsCountByHorizontal: 4, cellsCountByVertical: 4);
 
-            var nodes = builder.Build(cellsCountByHorizontal: 4, cellsCountByVertical: 4);
+            var nodes = builder.Build();
 
             
         }
@@ -33,10 +33,9 @@ namespace GameOfShapes.Tests
         [Fact]
         public void Build_Default_ReturnsNoRepeatCells()
         {
-            var builder = new GameBoardMapBuilder();
+            var builder = new GameBoardMapBuilder(cellsCountByHorizontal: 4, cellsCountByVertical: 4);
 
-            var nodes = builder.Build(cellsCountByHorizontal: 4, cellsCountByVertical: 4);
-
+            var nodes = builder.Build();
 
         }
     }
