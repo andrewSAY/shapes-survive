@@ -16,6 +16,7 @@ namespace GameOfShapes.Implementations
         {
             _gameBoard = gameBoard;
             _shapeType = shapeType;
+            _currentPosition = startPosition;
         }
 
         public bool CanConnectWith(IShape shape)
@@ -46,6 +47,7 @@ namespace GameOfShapes.Implementations
         public IGameBoardCell NextMove()
         {
             var r = new Random();
+            throw new NotImplementedException();
         }
     }
 }

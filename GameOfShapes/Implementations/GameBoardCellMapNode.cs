@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace GameOfShapes.Implementations
+﻿namespace GameOfShapes.Implementations
 {
-    public struct GameBoardCellMapNode : IGameBoardCellMapNode
+    public readonly struct GameBoardCellMapNode : IGameBoardCellMapNode
     {
         private readonly IGameBoardCell _gameBoardCell;
 

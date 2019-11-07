@@ -10,12 +10,11 @@ namespace GameOfShapes.Implementations
     {
         private readonly Point _position;
         private IShape _shapeOnCell;
-        private Dictionary<CellNodeMapPositions, IGameBoardCellMapNode> _map;
+        private Dictionary<CellNodeMapPositions, IGameBoardCellMapNode> _map = new Dictionary<CellNodeMapPositions, IGameBoardCellMapNode>();
 
         public GameBoardCell(Point position)
         {
             _position = position;
-            _map = new Dictionary<CellNodeMapPositions, IGameBoardCellMapNode>();
         }        
 
         public bool CellHasShape()
@@ -28,7 +27,7 @@ namespace GameOfShapes.Implementations
             return _map.Values.ToList();
         }
 
-        public void SetMapNodes(IGameBoardCellMapNode mapNode)
+        public void SetMapNode(IGameBoardCellMapNode mapNode)
         {
             var mapNodeRelativePosition = mapNode.GetMapPosition();
 

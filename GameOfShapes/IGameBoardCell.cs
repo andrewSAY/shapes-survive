@@ -7,7 +7,7 @@ namespace GameOfShapes
     {
         IEnumerable<IGameBoardCellMapNode> GetMapNodes();
 
-        void SetMapNodes(IGameBoardCellMapNode mapNode);
+        void SetMapNode(IGameBoardCellMapNode mapNode);
 
         Point GetPosition();
 
