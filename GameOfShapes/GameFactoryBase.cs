@@ -50,11 +50,15 @@ namespace GameOfShapes
             switch (shapeType)
             {
                 case ShapeTypes.Circle:
-                   
+                    strategy = new WaveTraceStrategy(useDiagonalDirection: false);
+                    break;
+
                 case ShapeTypes.Square:
-                    
+                    strategy = new WaveTraceStrategy(useDiagonalDirection: true);
+                    break;
+
                 case ShapeTypes.Triangle:
-                    strategy = new RandomSelectStrategy();
+                    strategy = new WaveTraceStrategy(useDiagonalDirection: true);
                     break;              
             }
 

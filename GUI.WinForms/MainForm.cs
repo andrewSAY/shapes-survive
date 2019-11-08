@@ -12,8 +12,8 @@ namespace GUI.WinForms
 {
     public partial class MainForm : Form , IMainForm
     {
-        private const int defaultCountCellWidth = 25;
-        private const int defaultCountCellHeight = 12;
+        private const int defaultCountCellWidth = 10;
+        private const int defaultCountCellHeight = 5;
 
         Dictionary<Point, ShapeTypes> _shapes = new Dictionary<Point, ShapeTypes>(new PointEqualityComparer());
         ISession _gameSession;
