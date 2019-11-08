@@ -4,7 +4,7 @@ using System.Drawing;
 
 namespace GameOfShapes
 {
-    class PointEqualityComparer : IEqualityComparer<Point>
+    public class PointEqualityComparer : IEqualityComparer<Point>
     {
         public bool Equals(Point left, Point right)
         {

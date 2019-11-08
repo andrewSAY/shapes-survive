@@ -7,7 +7,9 @@ namespace GameOfShapes.Implementations
 {
     public class Session : ISession
     {
-        public event Action<Dictionary<ShapeTypes, Point>> ShapeMovedEvent;
+        public event Action<Dictionary<Point, ShapeTypes>> ShapeMovedEvent;
+        public event Action<IShape> SomeShapeWonEvent;
+        public event Action NoShapeOnBaordLeftEvent;
 
         private readonly List<IShape> _shapesToPlay;
         private readonly IGameBoard _gameBoard;
@@ -20,13 +22,13 @@ namespace GameOfShapes.Implementations
 
         public void PlayRound()
         {
-            for (var index = 0; index <= _shapesToPlay.Count; index++)
+            for (var index = 0; index < _shapesToPlay.Count; index++)
             {
                 var shape = _shapesToPlay[index];
 
                 var nextCell = shape.NextMove();
 
-                if(!shape.IsAlive())
+                if(shape.IsAlive())
                 {
                     var startCell = _gameBoard.GetShapeCell(shape);
                     _gameBoard.MoveShapeFromCellToCell(startCell, nextCell);
@@ -47,7 +49,7 @@ namespace GameOfShapes.Implementations
                 return;
             }
 
-            var eventData = _shapesToPlay.ToDictionary(s => s.GetShapeType(), s => s.GetPosition());
+            var eventData = _shapesToPlay.ToDictionary(s => s.GetPosition(), s => s.GetShapeType(), new PointEqualityComparer());
 
             ShapeMovedEvent(eventData);
         }

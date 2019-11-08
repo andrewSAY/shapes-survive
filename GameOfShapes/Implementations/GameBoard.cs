@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using GameOfShapes.Exceptions;
 
@@ -12,6 +13,23 @@ namespace GameOfShapes.Implementations
         public GameBoard(IEnumerable<IGameBoardCell> cells)
         {
             _cells = cells.ToList();
+        }
+
+        public IGameBoardCell GetCellByPointer(Point cellPointer)
+        {
+            var cell = _cells.FirstOrDefault(c => c.GetPosition().X == cellPointer.X && c.GetPosition().Y == cellPointer.Y);
+            
+            if(cell == null)
+            {
+                throw new NoCellOnBoardException(cellPointer);
+            }
+
+            return cell;
+        }
+
+        public IGameBoardCell GetCellToWin()
+        {
+            return _cells.Last();
         }
 
         public IGameBoardCell GetShapeCell(IShape shape)

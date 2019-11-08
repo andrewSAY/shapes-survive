@@ -70,7 +70,7 @@ namespace GameOfShapes.Implementations
 
         public bool TrySetShapeOnCell(IShape shape)
         {
-            if(shape != null)
+            if(shape == null)
             {
                 return false;
             }

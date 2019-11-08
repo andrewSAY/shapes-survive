@@ -18,14 +18,13 @@ namespace GUI.WinForms
         private int countCellHeight;
         private int boardSizeWidth;
         private int boardSizeHeight;
-        private const int defaultCountCellWidth = 25;
-        private const int defaultCountCellHeight = 12;
+        
 
         public Board(MainForm _mainForm, int _countCellWidth, int _countCellHeight)
         {
             this.mainForm = _mainForm;
-            this.countCellWidth = _countCellWidth==0 ? Board.defaultCountCellWidth : _countCellWidth;
-            this.countCellHeight = _countCellHeight == 0 ? Board.defaultCountCellHeight : _countCellHeight;
+            this.countCellWidth = _countCellWidth;
+            this.countCellHeight = _countCellHeight;
             
             this.CalculateSize();
             

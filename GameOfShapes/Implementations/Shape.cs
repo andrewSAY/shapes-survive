@@ -9,14 +9,21 @@ namespace GameOfShapes.Implementations
     {
         private readonly IGameBoard _gameBoard;
         private readonly ShapeTypes _shapeType;
-        private IGameBoardCell _currentPosition;
+        private readonly IMoveStrategy _moveStrategy;
+        private IGameBoardCell _currentPosition => _gameBoard.GetShapeCell(this);
 
 
-        public Shape(IGameBoard gameBoard, ShapeTypes shapeType, IGameBoardCell startPosition)
+        public Shape(IGameBoard gameBoard, ShapeTypes shapeType, IGameBoardCell startPosition, IMoveStrategy strategy)
         {
-            _gameBoard = gameBoard;
+            _gameBoard = gameBoard ?? throw new ArgumentNullException(nameof(gameBoard));
             _shapeType = shapeType;
-            _currentPosition = startPosition;
+            if (startPosition == null)
+            {
+                throw new ArgumentNullException(nameof(startPosition));
+            }
+            _moveStrategy = strategy ?? throw new ArgumentNullException(nameof(strategy));
+
+            startPosition.TrySetShapeOnCell(this);
         }
 
         public bool CanConnectWith(IShape shape)
@@ -46,8 +53,7 @@ namespace GameOfShapes.Implementations
 
         public IGameBoardCell NextMove()
         {
-            var r = new Random();
-            throw new NotImplementedException();
+            return _moveStrategy.CalculateOptimalCell(this, _currentPosition, _gameBoard.GetCellToWin());
         }
     }
 }
