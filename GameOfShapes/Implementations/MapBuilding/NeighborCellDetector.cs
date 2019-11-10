@@ -38,7 +38,7 @@ namespace GameOfShapes.Implementations.MapBuilding
             _targetCell = targetCell;
         }
 
-        public void DetectAndSetNeghbors()
+        public void DetectAndSetNeighbors()
         {
             foreach (var neighborsPositionsCalculateAlgorithm in _neighborsPositionsCalculateAlgorithms)
             {

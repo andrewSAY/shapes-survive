@@ -32,7 +32,8 @@ namespace GameOfShapes
             foreach (var description in _shapesDescriptions)
             {
                 var moveStrategy = GetMoveStrategyForShape(description.Value);
-                yield return BuildAndGetShape(description.Value, description.Key, gameBoard, moveStrategy);
+                var analyzer = GetPathAnalyzerForShape(description.Value);
+                yield return BuildAndGetShape(description.Value, description.Key, gameBoard, moveStrategy, analyzer);
             }
         }
 
@@ -42,27 +43,14 @@ namespace GameOfShapes
 
         protected abstract IGameBoard BuildAndGetGameBoard(IGameBoardMapBuilder gameBoardMapBuilder);
 
-        protected abstract IShape BuildAndGetShape(ShapeTypes shapeType, Point startPosition, IGameBoard gameBoard, IMoveStrategy moveStrategy);
+        protected abstract IShape BuildAndGetShape(ShapeTypes shapeType,
+            Point startPosition,
+            IGameBoard gameBoard,
+            IMoveStrategy moveStrategy,
+            PathAnalyzerBase pathAnalyzer);
 
-        protected virtual IMoveStrategy GetMoveStrategyForShape(ShapeTypes shapeType)
-        {
-            IMoveStrategy strategy = null;
-            switch (shapeType)
-            {
-                case ShapeTypes.Circle:
-                    strategy = new WaveTraceStrategy(useDiagonalDirection: false);
-                    break;
-
-                case ShapeTypes.Square:
-                    strategy = new WaveTraceStrategy(useDiagonalDirection: true);
-                    break;
-
-                case ShapeTypes.Triangle:
-                    strategy = new WaveTraceStrategy(useDiagonalDirection: true);
-                    break;              
-            }
-
-            return strategy;
-        }
+        protected abstract PathAnalyzerBase GetPathAnalyzerForShape(ShapeTypes shapeType);        
+        
+        protected abstract IMoveStrategy GetMoveStrategyForShape(ShapeTypes shapeType);       
     }
 }

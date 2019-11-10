@@ -25,7 +25,7 @@ namespace GameOfShapes.Implementations.MapBuilding
                 {
                     var newCell = CreateCellAndAddItToMap(xPosition, yPosition);
                     var neighborDetector = new NeighborCellDetector(newCell, _map.ToDictionary(kp  => kp.Key, kp => kp.Value));
-                    neighborDetector.DetectAndSetNeghbors();
+                    neighborDetector.DetectAndSetNeighbors();
                 }
             }
 

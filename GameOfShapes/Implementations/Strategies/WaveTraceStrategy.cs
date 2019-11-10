@@ -1,40 +1,50 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using GameOfShapes.Exceptions;
 
 namespace GameOfShapes.Implementations.Strategies
 {
     public class WaveTraceStrategy : IMoveStrategy
     {
-        private readonly bool _useDiagoanal = true;
+        private readonly bool _useDiagonal = true;
         private Dictionary<IGameBoardCell, int?> _waveTrace;
-        private IEnumerable<IGameBoardCell> _trace;
-
-        public WaveTraceStrategy(bool useDiagonalDirection)
+        
+        private readonly List<CellNodeMapPositions> diagonalesDirections = new List<CellNodeMapPositions>
         {
-            _useDiagoanal = useDiagonalDirection;
+            CellNodeMapPositions.NordEast, CellNodeMapPositions.NordWest, CellNodeMapPositions.SouthEast, CellNodeMapPositions.SouthWest
+        };
+        private bool CheckDirection(CellNodeMapPositions direction) => diagonalesDirections.Contains(direction) ? _useDiagonal : true;
+
+        public WaveTraceStrategy(bool useDiagonalesDirection)
+        {
+            _useDiagonal = useDiagonalesDirection;
         }
 
-        public IGameBoardCell CalculateOptimalCell(IShape shape, IGameBoardCell currentPosition, IGameBoardCell targetPosition)
+        public IEnumerable<IGameBoardCell> CalculateOptimalCellTrace(IGameBoardCell currentPosition, IGameBoardCell targetPosition, IEnumerable<IGameBoardCell> impassableCells)
         {
 
             _waveTrace = new Dictionary<IGameBoardCell, int?>();
-            PushWave(currentPosition, targetPosition);
-            var optimalTrace = RepaireTrace(currentPosition, targetPosition);
+            PushWave(currentPosition, targetPosition, impassableCells);
+            var optimalTrace = RepaireTraceAndGetIt(currentPosition, targetPosition);
 
-            var itselfCell = optimalTrace.Last();
-            optimalTrace.Remove(itselfCell);
-
-            return optimalTrace.Last();
+            return optimalTrace;
         }
 
-        private void PushWave(IGameBoardCell currentPosition, IGameBoardCell targetPosition)
+        private void PushWave(IGameBoardCell currentPosition, IGameBoardCell targetPosition, IEnumerable<IGameBoardCell> impassableCells)
         {
             var value = 1;
             _waveTrace.Add(currentPosition, value);
             while (!_waveTrace.ContainsKey(targetPosition))
             {
+                var maxTraceValue = _waveTrace.Values.Max();
+                if (value - maxTraceValue > 100_000)
+                {
+                    throw new NoPathException();
+                }
+
                 var nodesToAdd = new Dictionary<IGameBoardCell, int?>();
+                
                 foreach (var traceUnit in _waveTrace)
                 {
                     if (!traceUnit.Value.HasValue || traceUnit.Value != value)
@@ -45,12 +55,16 @@ namespace GameOfShapes.Implementations.Strategies
                     foreach (var node in traceUnit.Key.GetMapNodes())
                     {
                         var cell = node.GetBoardCell();
-                        if (!_waveTrace.ContainsKey(cell) && !nodesToAdd.ContainsKey(cell))
+                        if (!_waveTrace.ContainsKey(cell) 
+                            && !nodesToAdd.ContainsKey(cell)
+                            && !impassableCells.Contains(cell)
+                            && CheckDirection(node.GetMapPosition()))
                         {
                             nodesToAdd.Add(cell, value  + 1);
                         }
                     }
                 }
+
                 foreach (var nodeToAdd in nodesToAdd)
                 {
                     _waveTrace.Add(nodeToAdd.Key, nodeToAdd.Value);
@@ -59,7 +73,7 @@ namespace GameOfShapes.Implementations.Strategies
             }
         }
 
-        private List<IGameBoardCell> RepaireTrace(IGameBoardCell currentPosition, IGameBoardCell targetPosition)
+        private List<IGameBoardCell> RepaireTraceAndGetIt(IGameBoardCell currentPosition, IGameBoardCell targetPosition)
         {
             var backTrace = new List<IGameBoardCell>();
             var cell = targetPosition;

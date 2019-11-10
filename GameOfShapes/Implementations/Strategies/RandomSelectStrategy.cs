@@ -8,7 +8,7 @@ namespace GameOfShapes.Implementations.Strategies
     {
         private readonly Random r = new Random();
 
-        public IGameBoardCell CalculateOptimalCell(IShape shape, IGameBoardCell currentPosition, IGameBoardCell targetPosition)
+        public IEnumerable<IGameBoardCell> CalculateOptimalCellTrace(IGameBoardCell currentPosition, IGameBoardCell targetPosition, IEnumerable<IGameBoardCell> impassableCells)
         {
             var randomTable = new Dictionary<int, CellNodeMapPositions>
             {
@@ -32,7 +32,7 @@ namespace GameOfShapes.Implementations.Strategies
                 boardCell = currentPosition.GetMapNodes().FirstOrDefault(n => n.GetMapPosition() == direction)?.GetBoardCell();
             }
 
-            return boardCell;
+            return new List<IGameBoardCell> { boardCell };
         }
     }
 }

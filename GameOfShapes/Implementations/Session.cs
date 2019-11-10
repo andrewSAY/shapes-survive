@@ -13,6 +13,7 @@ namespace GameOfShapes.Implementations
 
         private readonly List<IShape> _shapesToPlay;
         private readonly IGameBoard _gameBoard;
+        private IShape _shapeWinner;
 
         public Session(IEnumerable<IShape> shapes, IGameBoard gameBoard)
         {
@@ -22,27 +23,52 @@ namespace GameOfShapes.Implementations
 
         public void PlayRound()
         {
+            if (_shapeWinner != null)
+            {
+                FireWinEvent();
+                return;
+            }
+
             for (var index = 0; index < _shapesToPlay.Count; index++)
             {
                 var shape = _shapesToPlay[index];
 
                 var nextCell = shape.NextMove();
 
+                var shapeCell = _gameBoard.GetShapeCell(shape);
+
                 if(shape.IsAlive())
                 {
-                    var startCell = _gameBoard.GetShapeCell(shape);
-                    _gameBoard.MoveShapeFromCellToCell(startCell, nextCell);
+                    _gameBoard.MoveShapeFromCellToCell(shapeCell, nextCell);
+                    if(nextCell == _gameBoard.GetCellToWin())
+                    {
+                        _shapeWinner = shape;
+                        FireMoveEvent();
+                        FireWinEvent();
+                        break;
+                    }
                 }
                 else
                 {
-                    _shapesToPlay.RemoveAt(index);
+                    shapeCell.MoveShapeOut();
+                    _shapesToPlay.Remove(shape);
                 }
 
-                FireEvent();
+                FireMoveEvent();
             }
         }
 
-        private void FireEvent()
+        private void FireWinEvent()
+        {
+            if(SomeShapeWonEvent == null)
+            {
+                return;
+            }
+
+            SomeShapeWonEvent(_shapeWinner);
+        }
+
+        private void FireMoveEvent()
         {
             if(ShapeMovedEvent == null)
             {

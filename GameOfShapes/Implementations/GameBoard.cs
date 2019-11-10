@@ -46,6 +46,11 @@ namespace GameOfShapes.Implementations
 
         public void MoveShapeFromCellToCell(IGameBoardCell fromCell, IGameBoardCell toCell)
         {
+            if(fromCell == toCell)
+            {
+                return;
+            }
+
             if (toCell.CellHasShape())
             {
                 throw new ImpossibleMoveShapeToNoFreeCellException(fromCell, toCell);

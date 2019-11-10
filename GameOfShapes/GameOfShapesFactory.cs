@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using GameOfShapes.Implementations;
 using GameOfShapes.Implementations.MapBuilding;
+using GameOfShapes.Implementations.PathAnalizers;
+using GameOfShapes.Implementations.Strategies;
 
 namespace GameOfShapes
 {
@@ -29,10 +31,56 @@ namespace GameOfShapes
             return new Session(shapes, gameBoard);
         }
 
-        protected override IShape BuildAndGetShape(ShapeTypes shapeType, Point startPosition, IGameBoard gameBoard, IMoveStrategy moveStrategy)
+        protected override IShape BuildAndGetShape(ShapeTypes shapeType,
+            Point startPosition,
+            IGameBoard gameBoard,
+            IMoveStrategy moveStrategy,
+            PathAnalyzerBase pathAnalyzer)
         {
             var shapeCell = gameBoard.GetCellByPointer(startPosition);
-            return new Shape(gameBoard, shapeType, shapeCell, moveStrategy);
+            return new Shape(gameBoard, shapeType, shapeCell, moveStrategy, pathAnalyzer);
+        }
+
+        protected override IMoveStrategy GetMoveStrategyForShape(ShapeTypes shapeType)
+        {
+            IMoveStrategy strategy = null;
+            switch (shapeType)
+            {
+                case ShapeTypes.Circle:
+                    strategy = new WaveTraceStrategy(useDiagonalesDirection: false);
+                    break;
+
+                case ShapeTypes.Square:
+                    strategy = new WaveTraceStrategy(useDiagonalesDirection: true);
+                    break;
+
+                case ShapeTypes.Triangle:
+                    strategy = new WaveTraceStrategy(useDiagonalesDirection: true);
+                    break;
+            }
+
+            return strategy;
+        }
+
+        protected override PathAnalyzerBase GetPathAnalyzerForShape(ShapeTypes shapeType)
+        {
+            PathAnalyzerBase analyzer = null;
+            switch (shapeType)
+            {
+                case ShapeTypes.Circle:
+                    analyzer = new CirclePathAnalyzer();
+                    break;
+
+                case ShapeTypes.Square:
+                    analyzer = new SquarePathAnalyzer();
+                    break;
+
+                case ShapeTypes.Triangle:
+                    analyzer = new TrianglePathAnazyzer();
+                    break;
+            }
+
+            return analyzer;
         }
     }
 }

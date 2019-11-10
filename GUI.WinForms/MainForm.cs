@@ -12,7 +12,7 @@ namespace GUI.WinForms
 {
     public partial class MainForm : Form , IMainForm
     {
-        private const int defaultCountCellWidth = 10;
+        private const int defaultCountCellWidth = 5;
         private const int defaultCountCellHeight = 5;
 
         Dictionary<Point, ShapeTypes> _shapes = new Dictionary<Point, ShapeTypes>(new PointEqualityComparer());
@@ -105,6 +105,11 @@ namespace GUI.WinForms
             }
         }
 
+        private void OnWon(IShape shape)
+        {
+            MessageBox.Show("The round has fnished! We have the winner");
+        }
+
         private void RenderShape(Point cellPoint, ShapeTypes shapeType)
         {
             if (this.board != null)
@@ -145,6 +150,7 @@ namespace GUI.WinForms
             var builder = new GameOfShapesFactory(_shapes.ToDictionary(i => i.Key, i => i.Value), _boardWidth, _boardHeight);
             _gameSession = builder.BuildGameAndGetSession();
             _gameSession.ShapeMovedEvent += OnMove;
+            _gameSession.SomeShapeWonEvent += OnWon;
         }
     }
 

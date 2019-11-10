@@ -1,7 +1,9 @@
-﻿namespace GameOfShapes
+﻿using System.Collections.Generic;
+
+namespace GameOfShapes
 {
     public interface IMoveStrategy
     {
-        IGameBoardCell CalculateOptimalCell(IShape shape, IGameBoardCell currentPosition, IGameBoardCell targetPosition);
+        IEnumerable<IGameBoardCell> CalculateOptimalCellTrace(IGameBoardCell currentPosition, IGameBoardCell targetPosition, IEnumerable<IGameBoardCell> impassableCells);
     }
 }

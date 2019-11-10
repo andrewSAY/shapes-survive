@@ -1,19 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Text;
+using System.Linq;
+using GameOfShapes.Exceptions;
 
 namespace GameOfShapes.Implementations
 {
     public class Shape : IShape
     {
-        private readonly IGameBoard _gameBoard;
-        private readonly ShapeTypes _shapeType;
-        private readonly IMoveStrategy _moveStrategy;
-        private IGameBoardCell _currentPosition => _gameBoard.GetShapeCell(this);
+        protected readonly IGameBoard _gameBoard;
+        protected readonly ShapeTypes _shapeType;
+        protected readonly IMoveStrategy _moveStrategy;
+        protected readonly PathAnalyzerBase _pathAnalyzer;
+        protected IGameBoardCell _currentPosition => _gameBoard.GetShapeCell(this);
+       
+        protected IEnumerable<IGameBoardCell> _optimalTrace;
+        List<IGameBoardCell> _impassibleCells;
 
 
-        public Shape(IGameBoard gameBoard, ShapeTypes shapeType, IGameBoardCell startPosition, IMoveStrategy strategy)
+        public Shape(IGameBoard gameBoard, ShapeTypes shapeType, IGameBoardCell startPosition, IMoveStrategy strategy, PathAnalyzerBase pathAnalyzer)
         {
             _gameBoard = gameBoard ?? throw new ArgumentNullException(nameof(gameBoard));
             _shapeType = shapeType;
@@ -22,6 +27,7 @@ namespace GameOfShapes.Implementations
                 throw new ArgumentNullException(nameof(startPosition));
             }
             _moveStrategy = strategy ?? throw new ArgumentNullException(nameof(strategy));
+            _pathAnalyzer = pathAnalyzer ?? throw new ArgumentNullException(nameof(pathAnalyzer));
 
             startPosition.TrySetShapeOnCell(this);
         }
@@ -53,7 +59,57 @@ namespace GameOfShapes.Implementations
 
         public IGameBoardCell NextMove()
         {
-            return _moveStrategy.CalculateOptimalCell(this, _currentPosition, _gameBoard.GetCellToWin());
+            _impassibleCells = new List<IGameBoardCell>();
+            var cellToMove = _currentPosition;
+           
+            while (true)
+            {
+                if (!TryToSetOptimalTrace())
+                {
+                    break;
+                }
+
+                var ratingCells = _pathAnalyzer.AnalyzeAndGetRating(_optimalTrace);
+
+                var maxPoints = ratingCells.Values.Max();
+                var maxPointsCell = ratingCells.FirstOrDefault(i => i.Value == maxPoints).Key;
+
+                if (maxPointsCell != null
+                    && maxPoints > 0
+                    && !maxPointsCell.CellHasShape()
+                    )
+                {
+                    cellToMove = maxPointsCell;
+                    break;
+                }
+
+                if(maxPointsCell.CellHasShape())
+                {
+                    _impassibleCells.Add(maxPointsCell);
+                }
+                var ratingZeroCells = ratingCells.Where(i => i.Value == 0).Select(i => i.Key);
+                _impassibleCells.AddRange(ratingZeroCells);
+            }
+
+            return cellToMove;
+        }
+        
+        private bool TryToSetOptimalTrace()
+        {
+            try
+            {
+                _optimalTrace = _moveStrategy.CalculateOptimalCellTrace(_currentPosition, _gameBoard.GetCellToWin(), _impassibleCells);
+            }
+            catch (NoPathException)
+            {
+                return false;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+            return true;
         }
     }
 }
