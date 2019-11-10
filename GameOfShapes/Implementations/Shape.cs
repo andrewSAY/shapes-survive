@@ -11,14 +11,24 @@ namespace GameOfShapes.Implementations
         protected readonly IGameBoard _gameBoard;
         protected readonly ShapeTypes _shapeType;
         protected readonly IMoveStrategy _moveStrategy;
-        protected readonly PathAnalyzerBase _pathAnalyzer;
+        protected readonly IPathAnalyzer _pathAnalyzer;
+        protected readonly ISurvivalChecker _survivalChecker;
+        protected readonly Dictionary<ShapeTypes, int> _maxMoveRadiuses = new Dictionary<ShapeTypes, int>
+        {
+            { ShapeTypes.Circle, 1}, {ShapeTypes.Triangle, 2}, {ShapeTypes.Square, 3}
+        };
         protected IGameBoardCell _currentPosition => _gameBoard.GetShapeCell(this);
-       
+        protected IShape _connectedShape;
         protected IEnumerable<IGameBoardCell> _optimalTrace;
         List<IGameBoardCell> _impassibleCells;
 
 
-        public Shape(IGameBoard gameBoard, ShapeTypes shapeType, IGameBoardCell startPosition, IMoveStrategy strategy, PathAnalyzerBase pathAnalyzer)
+        public Shape(IGameBoard gameBoard
+            ,ShapeTypes shapeType
+            ,IGameBoardCell startPosition
+            ,IMoveStrategy strategy
+            ,IPathAnalyzer pathAnalyzer
+            ,ISurvivalChecker survivalChecker)
         {
             _gameBoard = gameBoard ?? throw new ArgumentNullException(nameof(gameBoard));
             _shapeType = shapeType;
@@ -28,18 +38,30 @@ namespace GameOfShapes.Implementations
             }
             _moveStrategy = strategy ?? throw new ArgumentNullException(nameof(strategy));
             _pathAnalyzer = pathAnalyzer ?? throw new ArgumentNullException(nameof(pathAnalyzer));
+            _survivalChecker = survivalChecker ?? throw new ArgumentNullException(nameof(survivalChecker));
 
             startPosition.TrySetShapeOnCell(this);
         }
 
         public bool CanConnectWith(IShape shape)
         {
-            throw new NotImplementedException();
+            if (_connectedShape == null)
+            {
+                return true;
+            }
+
+            return _connectedShape == shape; 
         }
 
         public bool ConnectWith(IShape shape)
         {
-            throw new NotImplementedException();
+            if(!CanConnectWith(shape))
+            {
+                return false;
+            }
+            _connectedShape = shape;
+
+            return true;
         }
 
         public Point GetPosition()
@@ -64,8 +86,12 @@ namespace GameOfShapes.Implementations
            
             while (true)
             {
-                if (!TryToSetOptimalTrace())
+                if (!TryToSetOptimalTrace(_gameBoard.GetCellToWin()))
                 {
+                    if (!_survivalChecker.ShapeWillSurvive(this, cellToMove))
+                    {
+                        cellToMove = FindCellFitToSurvive();
+                    }
                     break;
                 }
 
@@ -94,11 +120,11 @@ namespace GameOfShapes.Implementations
             return cellToMove;
         }
         
-        private bool TryToSetOptimalTrace()
+        protected bool TryToSetOptimalTrace(IGameBoardCell targetCell)
         {
             try
             {
-                _optimalTrace = _moveStrategy.CalculateOptimalCellTrace(_currentPosition, _gameBoard.GetCellToWin(), _impassibleCells);
+                _optimalTrace = _moveStrategy.CalculateOptimalCellTrace(_currentPosition, targetCell, _impassibleCells);
             }
             catch (NoPathException)
             {
@@ -110,6 +136,24 @@ namespace GameOfShapes.Implementations
             }
 
             return true;
+        }
+
+        protected IGameBoardCell FindCellFitToSurvive()
+        {
+            var celToMove = _currentPosition;
+            foreach (var node in celToMove.GetMapNodes())
+            {
+                var targetCell = node.GetBoardCell();
+                if (!TryToSetOptimalTrace(targetCell))
+                {
+                    continue;
+                }
+
+                celToMove = targetCell;
+                break;
+            }
+
+            return celToMove;
         }
     }
 }

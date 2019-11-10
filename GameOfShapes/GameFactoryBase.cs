@@ -32,8 +32,9 @@ namespace GameOfShapes
             foreach (var description in _shapesDescriptions)
             {
                 var moveStrategy = GetMoveStrategyForShape(description.Value);
-                var analyzer = GetPathAnalyzerForShape(description.Value);
-                yield return BuildAndGetShape(description.Value, description.Key, gameBoard, moveStrategy, analyzer);
+                var survivalChecker = GetSurvivalChecker(description.Value);
+                var analyzer = GetPathAnalyzerForShape(description.Value, survivalChecker);
+                yield return BuildAndGetShape(description.Value, description.Key, gameBoard, moveStrategy, analyzer, survivalChecker);
             }
         }
 
@@ -47,10 +48,13 @@ namespace GameOfShapes
             Point startPosition,
             IGameBoard gameBoard,
             IMoveStrategy moveStrategy,
-            PathAnalyzerBase pathAnalyzer);
+            IPathAnalyzer pathAnalyzer,
+            ISurvivalChecker survivalChecker);
 
-        protected abstract PathAnalyzerBase GetPathAnalyzerForShape(ShapeTypes shapeType);        
+        protected abstract IPathAnalyzer GetPathAnalyzerForShape(ShapeTypes shapeType, ISurvivalChecker survivalChecker);        
         
-        protected abstract IMoveStrategy GetMoveStrategyForShape(ShapeTypes shapeType);       
+        protected abstract IMoveStrategy GetMoveStrategyForShape(ShapeTypes shapeType);
+
+        protected abstract ISurvivalChecker GetSurvivalChecker(ShapeTypes shapeType);
     }
 }
