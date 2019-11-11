@@ -13,10 +13,6 @@ namespace GameOfShapes.Implementations
         protected readonly IMoveStrategy _moveStrategy;
         protected readonly IPathAnalyzer _pathAnalyzer;
         protected readonly ISurvivalChecker _survivalChecker;
-        protected readonly Dictionary<ShapeTypes, int> _maxMoveRadiuses = new Dictionary<ShapeTypes, int>
-        {
-            { ShapeTypes.Circle, 1}, {ShapeTypes.Triangle, 2}, {ShapeTypes.Square, 3}
-        };
         protected IGameBoardCell _currentPosition => _gameBoard.GetShapeCell(this);
         protected IShape _connectedShape;
         protected IEnumerable<IGameBoardCell> _optimalTrace;
@@ -63,11 +59,16 @@ namespace GameOfShapes.Implementations
 
             return true;
         }
+        public bool IsConnectedWith(IShape shape)
+        {
+            return _connectedShape != null && _connectedShape == shape;
+        }
 
         public Point GetPosition()
         {
             return _currentPosition.GetPosition();
         }
+
 
         public ShapeTypes GetShapeType()
         {
@@ -76,7 +77,7 @@ namespace GameOfShapes.Implementations
 
         public bool IsAlive()
         {
-            return true;
+            return _survivalChecker.ShapeWillSurvive(this, _currentPosition);
         }
 
         public IGameBoardCell NextMove()
@@ -117,9 +118,28 @@ namespace GameOfShapes.Implementations
                 _impassibleCells.AddRange(ratingZeroCells);
             }
 
+            _connectedShape = null;
             return cellToMove;
         }
         
+        protected IGameBoardCell FindCellFitToSurvive()
+        {
+            var celToMove = _currentPosition;
+            foreach (var node in celToMove.GetMapNodes())
+            {
+                var targetCell = node.GetBoardCell();
+                if (!TryToSetOptimalTrace(targetCell))
+                {
+                    continue;
+                }
+
+                celToMove = targetCell;
+                break;
+            }
+
+            return celToMove;
+        }
+
         protected bool TryToSetOptimalTrace(IGameBoardCell targetCell)
         {
             try
@@ -138,22 +158,5 @@ namespace GameOfShapes.Implementations
             return true;
         }
 
-        protected IGameBoardCell FindCellFitToSurvive()
-        {
-            var celToMove = _currentPosition;
-            foreach (var node in celToMove.GetMapNodes())
-            {
-                var targetCell = node.GetBoardCell();
-                if (!TryToSetOptimalTrace(targetCell))
-                {
-                    continue;
-                }
-
-                celToMove = targetCell;
-                break;
-            }
-
-            return celToMove;
-        }
     }
 }

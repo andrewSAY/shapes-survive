@@ -95,19 +95,30 @@ namespace GUI.WinForms
             _shapes.Add(cellPoint, currentShapeForAdd);
         }
 
-        private void OnMove(Dictionary<Point, ShapeTypes> data)
+        private void OnMove(Dictionary<Point, ShapeTypes> data, Dictionary<Point, Point> connectedPoints)
         {
             this.boardPanel.CreateGraphics().Clear(this.boardPanel.BackColor);
             this.board = new Board(this, _boardWidth, _boardHeight);
+            
             foreach (var cell in data)
             {
                 RenderShape(cell.Key, cell.Value);
+            }
+
+            foreach (var points in connectedPoints)
+            {
+                this.board.AddRelationLine(points.Key, points.Value);
             }
         }
 
         private void OnWon(IShape shape)
         {
             MessageBox.Show("The round has fnished! We have the winner");
+        }
+
+        private void OnFail()
+        {
+            MessageBox.Show("No shape that is alive");
         }
 
         private void RenderShape(Point cellPoint, ShapeTypes shapeType)
@@ -151,6 +162,7 @@ namespace GUI.WinForms
             _gameSession = builder.BuildGameAndGetSession();
             _gameSession.ShapeMovedEvent += OnMove;
             _gameSession.SomeShapeWonEvent += OnWon;
+            _gameSession.NoShapeOnBoardHasLeftEvent += OnFail;
         }
     }
 

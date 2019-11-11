@@ -21,7 +21,7 @@ namespace GameOfShapes.Implementations
                 var shapeToConnect = GetShapeOnCell(node.GetBoardCell());
                 if (shapeToConnect != null
                     && shapeToConnect != shape
-                    && shapeToConnect.CanConnectWith(shape))
+                    && (shapeToConnect.CanConnectWith(shape) || shape.IsConnectedWith(shape)))
                 {
                     foundPossibleRelationsCount++;
                 }

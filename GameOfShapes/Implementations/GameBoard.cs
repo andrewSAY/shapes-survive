@@ -9,6 +9,10 @@ namespace GameOfShapes.Implementations
     public class GameBoard : IGameBoard
     {
         private readonly IEnumerable<IGameBoardCell> _cells;
+        private readonly Dictionary<ShapeTypes, int> _relationsToSurvive = new Dictionary<ShapeTypes, int>
+        {
+            { ShapeTypes.Circle, 1}, {ShapeTypes.Triangle, 2}, {ShapeTypes.Square, 3}
+        };
 
         public GameBoard(IEnumerable<IGameBoardCell> cells)
         {
@@ -64,6 +68,42 @@ namespace GameOfShapes.Implementations
             }
 
             fromCell.MoveShapeOut();
+            ConnectShape(shapeToMove, toCell);
+        }
+
+        private void ConnectShape(IShape shape, IGameBoardCell shapeCell)
+        {
+            var relationsToSurvive = _relationsToSurvive[shape.GetShapeType()];
+
+            foreach (var node in shapeCell.GetMapNodes())
+            {
+                if(relationsToSurvive <= 0)
+                {
+                    break;
+                }
+
+                var shapeToConnect = GetShapeFromCell(node.GetBoardCell());
+                if (shapeToConnect != null && shapeToConnect.ConnectWith(shape))
+                {
+                    relationsToSurvive--;
+                }
+            }
+        }
+
+        private IShape GetShapeFromCell(IGameBoardCell cell)
+        {
+            try
+            {
+                return cell.GetShapeOnCell();
+            }
+            catch (NoShapeOnCellExeption)
+            {
+                return null;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
     }
 }

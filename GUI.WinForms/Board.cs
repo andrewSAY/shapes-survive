@@ -92,6 +92,20 @@ namespace GUI.WinForms
                 cellCenterY - this.halfShapeSize, this.shapeSize, this.shapeSize);
         }
 
+        public void AddRelationLine(Point one, Point two)
+        {
+            var centerOnePointX = GetCellCenterCoordinate(one.X);
+            var centerOnePointY = GetCellCenterCoordinate(one.Y);
+
+            var centerTwoPointX = GetCellCenterCoordinate(two.X);
+            var centerTwoPointY = GetCellCenterCoordinate(two.Y);
+
+            var pen = new Pen(Color.Red);
+            pen.Width = 3;
+
+            this.graphics.DrawLine(pen, centerOnePointX, centerOnePointY, centerTwoPointX, centerTwoPointY);
+        }
+
 
         private int GetCellCenterCoordinate(int position)
         {

@@ -6,11 +6,11 @@ namespace GameOfShapes
 {
     public interface ISession
     {
-        event Action<Dictionary<Point, ShapeTypes>> ShapeMovedEvent;
+        event Action<Dictionary<Point, ShapeTypes>, Dictionary<Point, Point>> ShapeMovedEvent;
 
         event Action<IShape> SomeShapeWonEvent;
 
-        event Action NoShapeOnBaordLeftEvent;
+        event Action NoShapeOnBoardHasLeftEvent;
 
         void PlayRound();
     }

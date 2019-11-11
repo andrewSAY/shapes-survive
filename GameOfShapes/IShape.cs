@@ -12,6 +12,8 @@ namespace GameOfShapes
 
         bool ConnectWith(IShape shape);
 
+        bool IsConnectedWith(IShape shape);
+
         ShapeTypes GetShapeType();
 
         Point GetPosition();
