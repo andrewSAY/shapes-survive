@@ -12,8 +12,8 @@ namespace GUI.WinForms
 {
     public partial class MainForm : Form , IMainForm
     {
-        private const int defaultCountCellWidth = 5;
-        private const int defaultCountCellHeight = 5;
+        private const int defaultCountCellWidth = 10;
+        private const int defaultCountCellHeight = 11;
 
         Dictionary<Point, ShapeTypes> _shapes = new Dictionary<Point, ShapeTypes>(new PointEqualityComparer());
         ISession _gameSession;
@@ -95,7 +95,7 @@ namespace GUI.WinForms
             _shapes.Add(cellPoint, currentShapeForAdd);
         }
 
-        private void OnMove(Dictionary<Point, ShapeTypes> data, Dictionary<Point, Point> connectedPoints)
+        private void OnMove(Dictionary<Point, ShapeTypes> data, IEnumerable<(Point, Point)> connectedPoints)
         {
             this.boardPanel.CreateGraphics().Clear(this.boardPanel.BackColor);
             this.board = new Board(this, _boardWidth, _boardHeight);
@@ -107,7 +107,7 @@ namespace GUI.WinForms
 
             foreach (var points in connectedPoints)
             {
-                this.board.AddRelationLine(points.Key, points.Value);
+                this.board.AddRelationLine(points.Item1, points.Item2);
             }
         }
 

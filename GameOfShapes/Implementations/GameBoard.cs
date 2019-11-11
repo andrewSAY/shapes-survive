@@ -68,6 +68,7 @@ namespace GameOfShapes.Implementations
             }
 
             fromCell.MoveShapeOut();
+            shapeToMove.BreakConnectionsIfCantToSave();
             ConnectShape(shapeToMove, toCell);
         }
 
@@ -83,8 +84,14 @@ namespace GameOfShapes.Implementations
                 }
 
                 var shapeToConnect = GetShapeFromCell(node.GetBoardCell());
-                if (shapeToConnect != null && shapeToConnect.ConnectWith(shape))
+                if (shapeToConnect != null
+                    && shapeToConnect.CanConnectWith(shape)
+                    && shape.CanConnectWith(shapeToConnect))
                 {
+                    if (!shape.ConnectWith(shapeToConnect) || !shapeToConnect.ConnectWith(shape))
+                    {
+                        throw new ClosedConnectionBetweenShapesImpossibleException(shape.GetPosition(), shapeToConnect.GetPosition());
+                    }
                     relationsToSurvive--;
                 }
             }

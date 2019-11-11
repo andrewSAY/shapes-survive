@@ -1,6 +1,6 @@
 ﻿namespace GameOfShapes.Implementations
 {
-    public readonly struct GameBoardCellMapNode : IGameBoardCellMapNode
+    public struct GameBoardCellMapNode : IGameBoardCellMapNode
     {
         private readonly IGameBoardCell _gameBoardCell;
 

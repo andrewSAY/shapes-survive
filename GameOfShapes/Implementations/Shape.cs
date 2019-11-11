@@ -13,8 +13,9 @@ namespace GameOfShapes.Implementations
         protected readonly IMoveStrategy _moveStrategy;
         protected readonly IPathAnalyzer _pathAnalyzer;
         protected readonly ISurvivalChecker _survivalChecker;
+        protected readonly HashSet<IShape> _connectedShapes;
+        protected readonly int _relationsCount;
         protected IGameBoardCell _currentPosition => _gameBoard.GetShapeCell(this);
-        protected IShape _connectedShape;
         protected IEnumerable<IGameBoardCell> _optimalTrace;
         List<IGameBoardCell> _impassibleCells;
 
@@ -24,7 +25,8 @@ namespace GameOfShapes.Implementations
             ,IGameBoardCell startPosition
             ,IMoveStrategy strategy
             ,IPathAnalyzer pathAnalyzer
-            ,ISurvivalChecker survivalChecker)
+            ,ISurvivalChecker survivalChecker
+            ,int relationsCount)
         {
             _gameBoard = gameBoard ?? throw new ArgumentNullException(nameof(gameBoard));
             _shapeType = shapeType;
@@ -35,18 +37,19 @@ namespace GameOfShapes.Implementations
             _moveStrategy = strategy ?? throw new ArgumentNullException(nameof(strategy));
             _pathAnalyzer = pathAnalyzer ?? throw new ArgumentNullException(nameof(pathAnalyzer));
             _survivalChecker = survivalChecker ?? throw new ArgumentNullException(nameof(survivalChecker));
-
+            _connectedShapes = new HashSet<IShape>();
+            _relationsCount = relationsCount;
             startPosition.TrySetShapeOnCell(this);
         }
 
         public bool CanConnectWith(IShape shape)
         {
-            if (_connectedShape == null)
+            if (_connectedShapes.Contains(shape))
             {
                 return true;
             }
 
-            return _connectedShape == shape; 
+            return _connectedShapes.Count() < _relationsCount; 
         }
 
         public bool ConnectWith(IShape shape)
@@ -55,13 +58,14 @@ namespace GameOfShapes.Implementations
             {
                 return false;
             }
-            _connectedShape = shape;
+            _connectedShapes.Add(shape);
 
             return true;
         }
+
         public bool IsConnectedWith(IShape shape)
         {
-            return _connectedShape != null && _connectedShape == shape;
+            return _connectedShapes.Contains(shape);
         }
 
         public Point GetPosition()
@@ -89,10 +93,16 @@ namespace GameOfShapes.Implementations
             {
                 if (!TryToSetOptimalTrace(_gameBoard.GetCellToWin()))
                 {
-                    if (!_survivalChecker.ShapeWillSurvive(this, cellToMove))
+                    if (cellToMove == _currentPosition)
                     {
                         cellToMove = FindCellFitToSurvive();
                     }
+
+                    if (cellToMove == _currentPosition)
+                    {
+                        cellToMove = FindAnyCellToTheLastStep();
+                    }
+
                     break;
                 }
 
@@ -117,15 +127,24 @@ namespace GameOfShapes.Implementations
                 var ratingZeroCells = ratingCells.Where(i => i.Value == 0).Select(i => i.Key);
                 _impassibleCells.AddRange(ratingZeroCells);
             }
-
-            _connectedShape = null;
+            
             return cellToMove;
         }
         
         protected IGameBoardCell FindCellFitToSurvive()
         {
-            var celToMove = _currentPosition;
-            foreach (var node in celToMove.GetMapNodes())
+            return FindAnyCell(_survivalChecker.ShapeWillSurvive);           
+        }
+
+        protected IGameBoardCell FindAnyCellToTheLastStep()
+        {
+            return FindAnyCell((IShape, IGameBoardCell) => true);
+        }
+
+        protected IGameBoardCell FindAnyCell(Func<IShape, IGameBoardCell, bool> checkSurvival)
+        {
+            var cellToMove = _currentPosition;
+            foreach (var node in cellToMove.GetMapNodes())
             {
                 var targetCell = node.GetBoardCell();
                 if (!TryToSetOptimalTrace(targetCell))
@@ -133,11 +152,14 @@ namespace GameOfShapes.Implementations
                     continue;
                 }
 
-                celToMove = targetCell;
-                break;
+                if (!targetCell.CellHasShape() && checkSurvival(this, targetCell))
+                {
+                    cellToMove = targetCell;
+                    break;
+                }
             }
 
-            return celToMove;
+            return cellToMove;
         }
 
         protected bool TryToSetOptimalTrace(IGameBoardCell targetCell)
@@ -158,5 +180,40 @@ namespace GameOfShapes.Implementations
             return true;
         }
 
+        public void BreakConnectionsIfCantToSave()
+        {
+            var relationsToRemove = new List<IShape>();
+            foreach(var shape in _connectedShapes)
+            {
+                var itselfPosition = _currentPosition.GetPosition();
+                var shapePosition = shape.GetPosition();
+
+                var xDistance = Math.Abs(itselfPosition.X - shapePosition.X);
+                var yDistance = Math.Abs(itselfPosition.Y - shapePosition.Y);
+
+                if(xDistance > 1 || yDistance > 1)
+                {
+                    relationsToRemove.Add(shape);
+                }
+            }
+
+            _connectedShapes.RemoveWhere(s => relationsToRemove.Contains(s));
+        }
+
+        private IShape GetShapeFromCell(IGameBoardCell cell)
+        {
+            try
+            {
+                return cell.GetShapeOnCell();
+            }
+            catch (NoShapeOnCellExeption)
+            {
+                return null;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
     }
 }

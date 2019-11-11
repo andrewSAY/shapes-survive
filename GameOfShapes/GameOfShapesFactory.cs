@@ -38,7 +38,8 @@ namespace GameOfShapes
             ISurvivalChecker survivalChecker)
         {
             var shapeCell = gameBoard.GetCellByPointer(startPosition);
-            return new Shape(gameBoard, shapeType, shapeCell, moveStrategy, pathAnalyzer, survivalChecker);
+            var possibleRelationsCount = _relationsCountSurvive[shapeType];
+            return new Shape(gameBoard, shapeType, shapeCell, moveStrategy, pathAnalyzer, survivalChecker, possibleRelationsCount);
         }
 
         protected override IMoveStrategy GetMoveStrategyForShape(ShapeTypes shapeType)
@@ -67,15 +68,15 @@ namespace GameOfShapes
             switch (shapeType)
             {
                 case ShapeTypes.Circle:
-                    survivalChecker = new SurvivalChecker(relationsCountToSurvive: 1);
+                    survivalChecker = new SurvivalChecker(relationsCountToSurvive: _relationsCountSurvive[shapeType]);
                     break;
 
                 case ShapeTypes.Square:
-                    survivalChecker = new SurvivalChecker(relationsCountToSurvive: 3);
+                    survivalChecker = new SurvivalChecker(relationsCountToSurvive: _relationsCountSurvive[shapeType]);
                     break;
 
                 case ShapeTypes.Triangle:
-                    survivalChecker = new SurvivalChecker(relationsCountToSurvive: 2);
+                    survivalChecker = new SurvivalChecker(relationsCountToSurvive: _relationsCountSurvive[shapeType]);
                     break;
             }
 
@@ -92,11 +93,11 @@ namespace GameOfShapes
                     break;
 
                 case ShapeTypes.Square:
-                    analyzer = new PathAnalyzer(maxStepsOnMoveAtAll: 1, maxStepsOnMoveByDiagonal: 0, survivalChecker); ;
+                    analyzer = new PathAnalyzer(maxStepsOnMoveAtAll: 2, maxStepsOnMoveByDiagonal: 2, survivalChecker); ;
                     break;
 
                 case ShapeTypes.Triangle:
-                    analyzer = new PathAnalyzer(maxStepsOnMoveAtAll: 1, maxStepsOnMoveByDiagonal: 0, survivalChecker);
+                    analyzer = new PathAnalyzer(maxStepsOnMoveAtAll: 2, maxStepsOnMoveByDiagonal: 1, survivalChecker);
                     break;
             }
 

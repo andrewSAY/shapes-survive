@@ -20,5 +20,6 @@ namespace GameOfShapes
 
         IGameBoardCell NextMove();
 
+        void BreakConnectionsIfCantToSave();
     }
 }

@@ -7,7 +7,7 @@ namespace GameOfShapes.Implementations
 {
     public class Session : ISession
     {
-        public event Action<Dictionary<Point, ShapeTypes>, Dictionary<Point, Point>> ShapeMovedEvent;
+        public event Action<Dictionary<Point, ShapeTypes>, IEnumerable<(Point, Point)>> ShapeMovedEvent;
         public event Action<IShape> SomeShapeWonEvent;
         public event Action NoShapeOnBoardHasLeftEvent;
 
@@ -28,10 +28,9 @@ namespace GameOfShapes.Implementations
                 FireWinEvent();
                 return;
             }
-
-            for (var index = 0; index < _shapesToPlay.Count; index++)
+            var shapesToRemove = new List<IShape>();
+            foreach (var shape in _shapesToPlay)
             {
-                var shape = _shapesToPlay[index];
                 var nextCell = shape.NextMove();
                 var shapeCell = _gameBoard.GetShapeCell(shape);
 
@@ -42,7 +41,7 @@ namespace GameOfShapes.Implementations
                     if(nextCell == _gameBoard.GetCellToWin())
                     {
                         _shapeWinner = shape;
-                        FireMoveEvent();
+                        FireMoveEvent(shapesToRemove);
                         FireWinEvent();
                         break;
                     }
@@ -50,12 +49,13 @@ namespace GameOfShapes.Implementations
                 else
                 {
                     nextCell.MoveShapeOut();
-                    _shapesToPlay.Remove(shape);
+                    shapesToRemove.Add(shape);
                 }
-
-                FireMoveEvent();
+                
+                FireMoveEvent(shapesToRemove);
             }
 
+            _shapesToPlay.RemoveAll(s => shapesToRemove.Contains(s));
             if (!_shapesToPlay.Any())
             {
                 FireFailEvent();
@@ -72,27 +72,26 @@ namespace GameOfShapes.Implementations
             SomeShapeWonEvent(_shapeWinner);
         }
 
-        private void FireMoveEvent()
+        private void FireMoveEvent(List<IShape> shapesToRemove)
         {
             if(ShapeMovedEvent == null)
             {
                 return;
             }
+            var shapes = _shapesToPlay.ToList();
+            shapes.RemoveAll(s => shapesToRemove.Contains(s));
 
-            var eventData = _shapesToPlay.ToDictionary(s => s.GetPosition(), s => s.GetShapeType(), new PointEqualityComparer());
-            var points = new Dictionary<Point, Point>(new PointEqualityComparer());
+            var eventData = shapes.ToDictionary(s => s.GetPosition(), s => s.GetShapeType(), new PointEqualityComparer());
+            var points = new List<(Point, Point)>();
             // I know it is O(N^2) but i'm tired :)
-            foreach (var shape in _shapesToPlay)
+            foreach (var shape in shapes)
             {
-                foreach (var shapeToConnect in _shapesToPlay)
+                foreach (var shapeToConnect in shapes)
                 {
                     if(shape.IsConnectedWith(shapeToConnect)
                         || shapeToConnect.IsConnectedWith(shape))
                     {
-                        if (!points.ContainsKey(shape.GetPosition()))
-                        {
-                            points.Add(shape.GetPosition(), shapeToConnect.GetPosition());
-                        }
+                        points.Add((shape.GetPosition(), shapeToConnect.GetPosition()));
                     }
                 }
             }

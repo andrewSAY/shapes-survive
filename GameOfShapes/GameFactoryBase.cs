@@ -10,6 +10,10 @@ namespace GameOfShapes
         protected Dictionary<Point, ShapeTypes> _shapesDescriptions;
         protected int _boardCellsByHorizontal;
         protected int _boardCellByVertical;
+        protected Dictionary<ShapeTypes, int> _relationsCountSurvive = new Dictionary<ShapeTypes, int>
+        {
+            { ShapeTypes.Circle, 1 }, { ShapeTypes.Triangle, 2 }, { ShapeTypes.Square, 3 }
+        };
 
         public GameFactoryBase(Dictionary<Point, ShapeTypes> shapes, int boardCellsByHorizontal, int boardCellByVertical)
         {
@@ -55,6 +59,6 @@ namespace GameOfShapes
         
         protected abstract IMoveStrategy GetMoveStrategyForShape(ShapeTypes shapeType);
 
-        protected abstract ISurvivalChecker GetSurvivalChecker(ShapeTypes shapeType);
+        protected abstract ISurvivalChecker GetSurvivalChecker(ShapeTypes shapeType);        
     }
 }
