@@ -107,10 +107,6 @@ namespace GameOfShapes.Implementations
             {
                 return null;
             }
-            catch (Exception)
-            {
-                throw;
-            }
         }
     }
 }

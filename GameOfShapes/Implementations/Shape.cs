@@ -172,10 +172,6 @@ namespace GameOfShapes.Implementations
             {
                 return false;
             }
-            catch (Exception)
-            {
-                throw;
-            }
 
             return true;
         }
@@ -209,10 +205,6 @@ namespace GameOfShapes.Implementations
             catch (NoShapeOnCellExeption)
             {
                 return null;
-            }
-            catch (Exception)
-            {
-                throw;
             }
         }
     }

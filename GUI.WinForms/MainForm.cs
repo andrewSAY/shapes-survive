@@ -113,7 +113,7 @@ namespace GUI.WinForms
 
         private void OnWon(IShape shape)
         {
-            MessageBox.Show("The round has fnished! We have the winner");
+            MessageBox.Show("The round has finished! We have the winner");
         }
 
         private void OnFail()
